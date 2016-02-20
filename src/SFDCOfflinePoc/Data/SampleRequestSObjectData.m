@@ -87,6 +87,15 @@
     [self updateSoupForFieldName:kSampleRequestAuthorizedUsersField fieldValue:authorizedUsers];
 }
 
+- (NSArray *)attachments {
+    return [self nonNullFieldValue:kSampleRequestAttachmentsField];
+}
+
+- (void)setAttachments:(NSArray *)attachment {
+    [self updateSoupForFieldName:kSampleRequestAttachmentsField fieldValue:attachment];
+}
+
+
 - (NSArray *) userRecords {
     int totalSize = [[self.authorizedUsers objectForKey:@"totalSize"] intValue];
     if (totalSize > 0) {

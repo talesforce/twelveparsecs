@@ -50,4 +50,6 @@
 
 - (void)reloadData;
 
+- (void)showToast:(NSString *)message;
+
 @end

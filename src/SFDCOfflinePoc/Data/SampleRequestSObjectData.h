@@ -20,5 +20,6 @@
 @property (nonatomic, copy) NSString *status;
 @property (nonatomic, copy) NSDictionary *authorizedUsers;
 @property (nonatomic, copy) NSArray *userRecords;
+@property (nonatomic, copy) NSArray *attachments;
 
 @end
