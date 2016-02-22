@@ -3,28 +3,25 @@
 //  SFDCOfflinePoc
 //
 //  Created by PAULO VITOR MAGACHO DA SILVA on 1/23/16.
+//  Updated by TCCODER on 2/22/16.
 //  Copyright © 2016 Topcoder Inc. All rights reserved.
 //
 
 #import "TabBarViewController.h"
 #import "Reachability.h"
+#import "BaseListViewController.h"
 
 static Reachability* reach;
 static NSString* reachHostName = @"login.salesforce.com";
 static NSString* pin = @"012016";
 
 @implementation TabBarViewController {
-    UIView *pinView;
     UIAlertController *alertView;
     BOOL noConnection;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    pinView = [[UIView alloc] initWithFrame:self.view.bounds];
-    pinView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.9];
-    pinView.userInteractionEnabled = NO;
 
     noConnection = NO;
 
@@ -38,7 +35,11 @@ static NSString* pin = @"012016";
     reach.reachableBlock = ^(Reachability*reach) {
         dispatch_async(dispatch_get_main_queue(), ^{
             noConnection = NO;
-            [pinView removeFromSuperview];
+            for (UINavigationController* navc in self.viewControllers) {
+                BaseListViewController* vc = navc.viewControllers[0];
+                [vc showOnline];
+            }
+
             if (alertView) {
                 [alertView dismissViewControllerAnimated:YES completion:nil];
             }
@@ -49,7 +50,11 @@ static NSString* pin = @"012016";
     reach.unreachableBlock = ^(Reachability*reach) {
         dispatch_async(dispatch_get_main_queue(), ^{
             noConnection = YES;
-            [self.view addSubview:pinView];
+            for (UINavigationController* navc in self.viewControllers) {
+                BaseListViewController* vc = navc.viewControllers[0];
+                [vc showOffline];
+            }
+
             [self showAlert];
         });
     };
@@ -58,7 +63,14 @@ static NSString* pin = @"012016";
     [reach startNotifier];
 
     if (![reach isReachable]) {
-        [self showAlert];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            noConnection = YES;
+            for (UINavigationController* navc in self.viewControllers) {
+                BaseListViewController* vc = navc.viewControllers[0];
+                [vc showOffline];
+            }
+            [self showAlert];
+        });
     }
 }
 

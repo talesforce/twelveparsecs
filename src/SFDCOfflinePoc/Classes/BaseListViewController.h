@@ -52,4 +52,13 @@
 
 - (void)showToast:(NSString *)message;
 
+/**
+ *  shows offline mode
+ */
+- (void)showOffline;
+/**
+ *  shows online mode
+ */
+- (void)showOnline;
+
 @end

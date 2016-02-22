@@ -463,4 +463,17 @@ static CGFloat    const kToastMessageFontSize           = 16.0;
     }
 }
 
+#pragma mark - offline/online
+
+- (void)showOffline {
+    self.syncButton.image = [UIImage imageNamed:@"no-internet"];
+    self.syncButton.enabled = NO;
+}
+
+- (void)showOnline {
+    self.syncButton.image = [UIImage imageNamed:@"sync"];
+    self.syncButton.enabled = YES;
+}
+
+
 @end

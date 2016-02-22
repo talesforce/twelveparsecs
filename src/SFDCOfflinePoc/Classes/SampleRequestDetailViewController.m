@@ -96,8 +96,8 @@
 - (void)loadView {
     [super loadView];
 
-    self.contactObject = self.isNewSampleRequest ? [self.contactMgr.dataRows objectAtIndex:0] : [self.contactMgr findById:self.sampleRequest.contactId];
-    self.productObject = self.isNewSampleRequest ? [self.productMgr.dataRows objectAtIndex:0] : [self.productMgr findById:self.sampleRequest.productId];
+    self.contactObject = self.isNewSampleRequest ? [self.contactMgr.dataRows firstObject] : [self.contactMgr findById:self.sampleRequest.contactId];
+    self.productObject = self.isNewSampleRequest ? [self.productMgr.dataRows firstObject] : [self.productMgr findById:self.sampleRequest.productId];
 
     self.dataRows = [self dataRowsFromSampleRequest];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
