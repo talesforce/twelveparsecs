@@ -23,7 +23,7 @@
  */
 
 #import "ActionsPopupController.h"
-#import "ContactListViewController.h"
+#import "BaseListViewController.h"
 
 //action constants
 NSString *const kActionLogout = @"Logout";
@@ -33,7 +33,7 @@ NSString *const kActionDbInspector = @"Inspect db";
 
 @implementation ActionsPopupController
 
-- (id)initWithAppViewController:(ContactListViewController *)appViewController {
+- (id)initWithAppViewController:(BaseListViewController *)appViewController {
     self = [super init];
     if (self) {
         self.appViewController = appViewController;
