@@ -341,7 +341,7 @@
 
     NSMutableArray *workingDataRows = [NSMutableArray array];
     [workingDataRows addObjectsFromArray:self.sampleRequestDataRows];
-    if (!self.isNewSampleRequest && _sampleRequest.objectId.length) {
+    if (!self.isNewSampleRequest) {
         [workingDataRows addObject:self.signDataRow];
     }
     return workingDataRows;

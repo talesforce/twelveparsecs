@@ -198,6 +198,7 @@ static char* const kSearchFilterQueueName = "com.salesforce.SFDCOfflinePoc.searc
 - (void)createLocalData:(SObjectData *)newData {
     [newData updateSoupForFieldName:kSyncManagerLocal fieldValue:@YES];
     [newData updateSoupForFieldName:kSyncManagerLocallyCreated fieldValue:@YES];
+    newData.objectId = [[NSUUID UUID] UUIDString];
     [self.store upsertEntries:@[ newData.soupDict ] toSoup:[[newData class] dataSpec].soupName];
 }
 
