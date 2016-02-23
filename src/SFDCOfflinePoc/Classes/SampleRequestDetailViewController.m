@@ -624,7 +624,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
             [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please sync when Internet connection is available" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Info" message:@"Please sync when Internet connection is available" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
             [alert show];
             [self.navigationController popViewControllerAnimated:YES];
         });

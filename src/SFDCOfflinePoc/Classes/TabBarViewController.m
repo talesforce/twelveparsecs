@@ -53,19 +53,21 @@ static NSString* reachHostName = @"login.salesforce.com";
     // Reachable
     reach.reachableBlock = ^(Reachability*reach) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            noConnection = NO;
-            for (UINavigationController* navc in self.viewControllers) {
-                BaseListViewController* vc = navc.viewControllers[0];
-                [vc showOnline];
-            }
-
-            if (alertView) {
-                [alertView dismissViewControllerAnimated:YES completion:nil];
-                alertView = nil;
-            }
-            if ([[UIApplication sharedApplication] isIgnoringInteractionEvents]) {
-                [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-                [dimView removeFromSuperview];
+            if (noConnection) {
+                noConnection = NO;
+                for (UINavigationController* navc in self.viewControllers) {
+                    BaseListViewController* vc = navc.viewControllers[0];
+                    [vc showOnline];
+                }
+                
+                if (alertView) {
+                    [alertView dismissViewControllerAnimated:YES completion:nil];
+                    alertView = nil;
+                }
+                if ([[UIApplication sharedApplication] isIgnoringInteractionEvents]) {
+                    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+                    [dimView removeFromSuperview];
+                }
             }
         });
     };
@@ -73,13 +75,15 @@ static NSString* reachHostName = @"login.salesforce.com";
     // Unreachable
     reach.unreachableBlock = ^(Reachability*reach) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            noConnection = YES;
-            for (UINavigationController* navc in self.viewControllers) {
-                BaseListViewController* vc = navc.viewControllers[0];
-                [vc showOffline];
+            if (!noConnection) {
+                noConnection = YES;
+                for (UINavigationController* navc in self.viewControllers) {
+                    BaseListViewController* vc = navc.viewControllers[0];
+                    [vc showOffline];
+                }
+                self.attempts = 0;
+                [self showAlert];
             }
-            self.attempts = 0;
-            [self showAlert];
         });
     };
 
@@ -114,7 +118,7 @@ static NSString* reachHostName = @"login.salesforce.com";
         UIAlertAction *action = [UIAlertAction actionWithTitle:@"Pin" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             UITextField *pinTextField = alertView.textFields.firstObject;
             alertView = nil;
-            if (![pinTextField.text isEqual:self.pin]) {
+            if (self.pin && ![pinTextField.text isEqual:self.pin]) {
                 ++self.attempts;
                 if (self.attempts < [Configurations maxAttempts])
                     [self showAlert];

@@ -20,6 +20,7 @@
 #import "ContactSObjectData.h"
 #import "ProductSObjectData.h"
 #import "WYPopoverController.h"
+#import "MBProgressHUD.h"
 #import <SalesforceSDKCore/SFDefaultUserManagementViewController.h>
 #import <SmartStore/SFSmartStoreInspectorViewController.h>
 #import <SalesforceSDKCore/SFAuthenticationManager.h>
@@ -251,6 +252,7 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
             ++count;
     
     // sync requests
+    [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
     typeof(self) __weak weakSelf = self;
     [self.dataMgr updateRemoteData:^(SFSyncState *syncProgressDetails) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -273,10 +275,13 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
                                 UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Success" message:[NSString stringWithFormat:@"Uploaded %d attachment(s)", (int)count] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
                                 [alert show];
                             }
+                            [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         } else if ([syncProgressDetails hasFailed]) {
                             [weakSelf showToast:@"Sync failed."];
+                            [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         } else {
                             [weakSelf showToast:[NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
+                            [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         }
                     });
                 }];
@@ -284,9 +289,11 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
             } else if ([syncProgressDetails hasFailed]) {
                 [weakSelf showToast:@"Sync failed."];
                 weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
+                [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
             } else {
                 [weakSelf showToast:[NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
                 weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
+                [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
             }
         });
     }];

@@ -476,6 +476,7 @@ static CGFloat    const kToastMessageFontSize           = 16.0;
 - (void)showOnline {
     self.syncButton.image = [UIImage imageNamed:@"sync"];
     self.syncButton.enabled = YES;
+    [self syncUpDown];
 }
 
 

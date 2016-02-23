@@ -79,6 +79,7 @@ static char* const kSearchFilterQueueName = "com.salesforce.SFDCOfflinePoc.searc
         [self registerSoup];
     }
     
+
     __weak SObjectDataManager *weakSelf = self;
     SFSyncSyncManagerUpdateBlock updateBlock = ^(SFSyncState* sync) {
         if ([sync isDone] || [sync hasFailed]) {

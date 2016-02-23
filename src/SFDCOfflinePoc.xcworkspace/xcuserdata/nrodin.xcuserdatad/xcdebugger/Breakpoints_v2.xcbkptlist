@@ -6,23 +6,7 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Pods/SmartSync/libs/SmartSync/SmartSync/Classes/Manager/SFSmartSyncSyncManager.m"
-            timestampString = "477956231.49497"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "496"
-            endingLineNumber = "496"
-            landmarkName = "-syncUpOneEntry:recordIds:index:updateSync:failBlock:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Pods/SmartSync/libs/SmartSync/SmartSync/Classes/Manager/SFSmartSyncSyncManager.m"
@@ -32,38 +16,6 @@
             startingLineNumber = "475"
             endingLineNumber = "475"
             landmarkName = "-syncUpOneEntry:recordIds:index:updateSync:failBlock:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Pods/SmartSync/libs/SmartSync/SmartSync/Classes/Manager/SFSmartSyncSyncManager.m"
-            timestampString = "477956239.536082"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "439"
-            endingLineNumber = "439"
-            landmarkName = "-syncUpOneEntry:recordIds:index:updateSync:failBlock:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Pods/SmartSync/libs/SmartSync/SmartSync/Classes/Manager/SFSmartSyncSyncManager.m"
-            timestampString = "477957087.633786"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "359"
-            endingLineNumber = "359"
-            landmarkName = "-getDirtyRecordIds:idField:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
