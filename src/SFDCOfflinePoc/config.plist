@@ -16,5 +16,7 @@
 	<string>Receipt.pdf</string>
 	<key>pdfFontSize</key>
 	<integer>20</integer>
+	<key>maxAttemps</key>
+	<integer>3</integer>
 </dict>
 </plist>

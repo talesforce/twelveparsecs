@@ -26,6 +26,7 @@
 #import "ActionsPopupController.h"
 #import "SObjectDataManager.h"
 #import "WYPopoverController.h"
+#import "TabBarViewController.h"
 #import <SalesforceSDKCore/SFDefaultUserManagementViewController.h>
 #import <SmartStore/SFSmartStoreInspectorViewController.h>
 #import <SalesforceSDKCore/SFAuthenticationManager.h>
@@ -365,6 +366,8 @@ static CGFloat    const kToastMessageFontSize           = 16.0;
         [self presentViewController:umvc animated:YES completion:NULL];
     } else if ([text isEqualToString:kActionDbInspector]) {
         [[[SFSmartStoreInspectorViewController alloc] initWithStore:self.dataMgr.store] present:self];
+    } else if ([text isEqualToString:kActionChangePin]) {
+        [(TabBarViewController*)self.tabBarController configurePin];
     }
 }
 

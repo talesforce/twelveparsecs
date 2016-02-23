@@ -29,7 +29,7 @@
 NSString *const kActionLogout = @"Logout";
 NSString *const kActionSwitchUser = @"Switch user";
 NSString *const kActionDbInspector = @"Inspect db";
-
+NSString *const kActionChangePin = @"Configure Pin";
 
 @implementation ActionsPopupController
 
@@ -39,7 +39,8 @@ NSString *const kActionDbInspector = @"Inspect db";
         self.appViewController = appViewController;
         self.actions = @[kActionLogout, @"Logout current user",
                          kActionSwitchUser, @"Bring up user switching screen",
-                         kActionDbInspector, @"Bring up db inspector"];
+                         kActionDbInspector, @"Bring up db inspector",
+                         kActionChangePin, @"Configure Pin"];
     }
     return self;
 }

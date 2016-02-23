@@ -31,6 +31,7 @@
 extern NSString *const kActionLogout;
 extern NSString *const kActionSwitchUser;
 extern NSString *const kActionDbInspector;
+extern NSString *const kActionChangePin;
 
 @interface ActionsPopupController : UITableViewController
 
