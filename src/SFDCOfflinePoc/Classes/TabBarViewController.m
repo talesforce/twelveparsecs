@@ -61,6 +61,7 @@ static NSString* reachHostName = @"login.salesforce.com";
 
             if (alertView) {
                 [alertView dismissViewControllerAnimated:YES completion:nil];
+                alertView = nil;
             }
             if ([[UIApplication sharedApplication] isIgnoringInteractionEvents]) {
                 [[UIApplication sharedApplication] endIgnoringInteractionEvents];
@@ -103,7 +104,7 @@ static NSString* reachHostName = @"login.salesforce.com";
  *  shows pin check alert
  */
 - (void)showAlert {
-    if (noConnection) {
+    if (!alertView) {
         alertView = [UIAlertController alertControllerWithTitle:@"No connection" message:@"Enter pin"
                                                  preferredStyle:UIAlertControllerStyleAlert];
         [alertView addTextFieldWithConfigurationHandler:^(UITextField *textField) {
@@ -112,6 +113,7 @@ static NSString* reachHostName = @"login.salesforce.com";
         }];
         UIAlertAction *action = [UIAlertAction actionWithTitle:@"Pin" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             UITextField *pinTextField = alertView.textFields.firstObject;
+            alertView = nil;
             if (![pinTextField.text isEqual:self.pin]) {
                 ++self.attempts;
                 if (self.attempts < [Configurations maxAttempts])
@@ -153,7 +155,7 @@ static NSString* reachHostName = @"login.salesforce.com";
         UITextField *oldPinTextField = alert.textFields[0];
         UITextField *pinTextField = alert.textFields[1];
         UITextField *confirmPinTextField = alert.textFields[2];
-        if (![oldPinTextField.text isEqual:self.pin]) {
+        if (self.pin && ![oldPinTextField.text isEqual:self.pin]) {
             [self showAlert:@"Error" message:@"Wrong pin" completion:^{
                 [self configurePin];
             }];
