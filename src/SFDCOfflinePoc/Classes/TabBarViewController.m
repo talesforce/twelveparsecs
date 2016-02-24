@@ -118,7 +118,7 @@ static NSString* reachHostName = @"login.salesforce.com";
         UIAlertAction *action = [UIAlertAction actionWithTitle:@"Pin" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             UITextField *pinTextField = alertView.textFields.firstObject;
             alertView = nil;
-            if (self.pin && ![pinTextField.text isEqual:self.pin]) {
+            if ((self.pin && ![pinTextField.text isEqual:self.pin]) || (!self.pin && pinTextField.text.length)) {
                 ++self.attempts;
                 if (self.attempts < [Configurations maxAttempts])
                     [self showAlert];
@@ -159,7 +159,7 @@ static NSString* reachHostName = @"login.salesforce.com";
         UITextField *oldPinTextField = alert.textFields[0];
         UITextField *pinTextField = alert.textFields[1];
         UITextField *confirmPinTextField = alert.textFields[2];
-        if (self.pin && ![oldPinTextField.text isEqual:self.pin]) {
+        if ((self.pin && ![oldPinTextField.text isEqual:self.pin]) || (!self.pin && oldPinTextField.text.length)) {
             [self showAlert:@"Error" message:@"Wrong pin" completion:^{
                 [self configurePin];
             }];
