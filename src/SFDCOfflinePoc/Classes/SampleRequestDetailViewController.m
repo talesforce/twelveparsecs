@@ -615,7 +615,7 @@
     NSString* parentID = _sampleRequest.objectId;
     NSDateFormatter* dateFormatter = [NSDateFormatter new];
     dateFormatter.dateFormat = @"YYYY-MM-dd'T'HH:mm:ss";
-    att.name = [[[Configurations pdfName] stringByAppendingString:[dateFormatter stringFromDate:[NSDate date]]] stringByAppendingPathExtension:@"pdf"];
+    att.name = [[[Configurations pdfName] stringByAppendingFormat:@"_%@", [dateFormatter stringFromDate:[NSDate date]]] stringByAppendingPathExtension:@"pdf"];
     att.body = b64;
     att.parentId = parentID;
     
