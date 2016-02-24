@@ -610,7 +610,9 @@
     AttachmentSObjectData* att = [[AttachmentSObjectData alloc] init];
     
     NSString* parentID = _sampleRequest.objectId;
-    att.name = [Configurations pdfName];
+    NSDateFormatter* dateFormatter = [NSDateFormatter new];
+    dateFormatter.dateFormat = @"YYYY-MM-dd'T'HH:mm:ss";
+    att.name = [[[Configurations pdfName] stringByAppendingString:[dateFormatter stringFromDate:[NSDate date]]] stringByAppendingPathExtension:@"pdf"];
     att.body = b64;
     att.parentId = parentID;
 

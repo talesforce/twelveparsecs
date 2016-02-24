@@ -93,8 +93,8 @@ static char* const kSearchFilterQueueName = "com.salesforce.SFDCOfflinePoc.searc
     // if (self.syncDownId == 0) {
         // first time
         NSString *soqlQuery = self.dataSpec.whereClause ?
-        [NSString stringWithFormat:@"SELECT %@, LastModifiedDate FROM %@ WHERE %@ LIMIT %lu SORT BY LastModifiedDate", [self.dataSpec.fieldNames componentsJoinedByString:@","], self.dataSpec.objectType, self.dataSpec.whereClause, (unsigned long)kSyncLimit] :
-        [NSString stringWithFormat:@"SELECT %@, LastModifiedDate FROM %@ LIMIT %lu SORT BY LastModifiedDate", [self.dataSpec.fieldNames componentsJoinedByString:@","], self.dataSpec.objectType, (unsigned long)kSyncLimit];
+        [NSString stringWithFormat:@"SELECT %@, LastModifiedDate FROM %@ WHERE %@ LIMIT %lu", [self.dataSpec.fieldNames componentsJoinedByString:@","], self.dataSpec.objectType, self.dataSpec.whereClause, (unsigned long)kSyncLimit] :
+        [NSString stringWithFormat:@"SELECT %@, LastModifiedDate FROM %@ LIMIT %lu", [self.dataSpec.fieldNames componentsJoinedByString:@","], self.dataSpec.objectType, (unsigned long)kSyncLimit];
 
         SFSyncOptions *syncOptions = [SFSyncOptions newSyncOptionsForSyncDown:SFSyncStateMergeModeLeaveIfChanged];
         SFSyncDownTarget *syncTarget = [SFSoqlSyncDownTarget newSyncTarget:soqlQuery];
