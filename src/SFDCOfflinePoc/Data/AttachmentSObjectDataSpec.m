@@ -26,9 +26,9 @@ NSString * const kAttachmentParentIdField = @"ParentId";
                                    [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentBodyField searchable:NO],
                                    [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentParentIdField searchable:YES],
                                    ];
-    NSArray *updateObjectFieldSpecs = @[ [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentNameField searchable:YES],
+    NSArray *updateObjectFieldSpecs = @[ [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentNameField searchable:NO],
                                          [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentBodyField searchable:NO],
-                                         [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentParentIdField searchable:NO],
+                                         [[SObjectDataFieldSpec alloc] initWithFieldName:kAttachmentParentIdField searchable:YES],
                                          ];
     
     // Any searchable fields would likely require index specs, if you're searching directly against SmartStore.
@@ -38,7 +38,7 @@ NSString * const kAttachmentParentIdField = @"ParentId";
     self.whereClause = nil;
     
     NSString *soupName = @"Attachments";
-    NSString *orderByFieldName = kAttachmentNameField;
+    NSString *orderByFieldName = kAttachmentParentIdField;
     return [self initWithObjectType:objectType objectFieldSpecs:objectFieldSpecs updateObjectFieldSpecs:updateObjectFieldSpecs
                          indexSpecs:indexSpecs soupName:soupName orderByFieldName:orderByFieldName];
 }

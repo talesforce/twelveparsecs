@@ -619,7 +619,7 @@
     self.sampleRequestUpdated = YES;
     
     [self.attachmentMgr createLocalData:att];
-    [self.dataMgr updateLocalData:_sampleRequest];
+    [self.dataMgr dataLocallyCreated:_sampleRequest] ? [self.dataMgr createLocalData:_sampleRequest] : [self.dataMgr updateLocalData:_sampleRequest];
     
     // check if connected
     if ([[SFSDKReachability reachabilityForInternetConnection] currentReachabilityStatus] == SFSDKReachabilityNotReachable) {

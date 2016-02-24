@@ -10,6 +10,7 @@
 #import "SampleRequestSObjectDataSpec.h"
 #import "SObjectData+Internal.h"
 #import <SmartSync/SFSmartSyncConstants.h>
+#import <SmartStore/SmartStore.h>
 
 @implementation SampleRequestSObjectData
 
@@ -102,6 +103,10 @@
         return [self.authorizedUsers objectForKey:@"records"];
     }
     return nil;
+}
+
+- (NSNumber *)soupEntryId {
+    return [self nonNullFieldValue:SOUP_ENTRY_ID];
 }
 
 @end

@@ -251,6 +251,12 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
         if ([self.attachmentDataMgr dataHasLocalChanges:data])
             ++count;
     
+    NSMutableDictionary* addedRequestsEntryIDs = [NSMutableDictionary new];
+    for (SampleRequestSObjectData* data in self.dataMgr.dataRows)
+        if ([self.dataMgr dataLocallyCreated:data]) {
+            addedRequestsEntryIDs[data.objectId] = data.soupEntryId;
+        }
+    
     // sync requests
     [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
     typeof(self) __weak weakSelf = self;
@@ -259,6 +265,17 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
             if ([syncProgressDetails isDone]) {
                 
                 [weakSelf.dataMgr refreshLocalData];
+                
+                for (AttachmentSObjectData* data in self.attachmentDataMgr.dataRows)
+                    if ([self.attachmentDataMgr dataHasLocalChanges:data] && addedRequestsEntryIDs[data.parentId]) {
+                        for (SampleRequestSObjectData* req in weakSelf.dataMgr.dataRows) {
+                            if ([req.soupEntryId isEqual:addedRequestsEntryIDs[data.parentId]]) {
+                                data.parentId = req.objectId;
+                                break;
+                            } else
+                                NSLog(@"%@ != %@", req.soupEntryId, addedRequestsEntryIDs[data.parentId]);
+                        }
+                    }
                 
                 [weakSelf.dataMgr refreshRemoteData];
                 
