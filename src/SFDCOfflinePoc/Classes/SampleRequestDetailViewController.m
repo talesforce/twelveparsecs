@@ -654,7 +654,7 @@
                 [self.navigationController popViewControllerAnimated:YES];
             });
         } else if ([sync hasFailed]) {
-            NSString* msg = @"Sync failed, try again later";
+            NSString* msg = sync.syncError.code == 400 ? @"Signed sample request has been remotely deleted" : @"Sync failed, try again later";
             dispatch_async(dispatch_get_main_queue(), ^{
                 [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
                 [[UIApplication sharedApplication] endIgnoringInteractionEvents];

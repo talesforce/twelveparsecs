@@ -563,7 +563,7 @@ static NSMutableDictionary *syncMgrList = nil;
     SFSyncUpTargetErrorBlock failBlockCreate = ^ (NSError* err){
         // Handling remotely deleted records
         if (err.code == 400) {
-            [self.store removeEntries:@[record] fromSoup:soupName];
+            [self.store removeEntries:@[soupEntryId] fromSoup:soupName];
             // fail sync and notify user
             failBlock(err);
         }

@@ -280,7 +280,7 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
                             [weakSelf showToast:@"Sync failed."];
                             [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         } else {
-                            [weakSelf showToast:[NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
+                            [weakSelf showToast:sync.syncError.code == 400 ? @"Deleted 1 attachment" : [NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
                             [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         }
                     });
