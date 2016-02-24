@@ -27,9 +27,11 @@
 #import <SmartStore/SFSmartStore.h>
 #import <SmartStore/SFQuerySpec.h>
 #import <SalesforceSDKCore/SFUserAccountManager.h>
+#import <SalesforceSDKCore/SFSDKReachability.h>
 
 // Will go away once we are done refactoring SFSyncTarget
 #import <SmartSync/SFSoqlSyncDownTarget.h>
+
 
 static NSUInteger kMaxQueryPageSize = 1000;
 static NSUInteger kSyncLimit = 10000;
@@ -88,7 +90,8 @@ static char* const kSearchFilterQueueName = "com.salesforce.SFDCOfflinePoc.searc
         }
     };
 
-    [self.store clearSoup:self.dataSpec.soupName];
+    if ([[SFSDKReachability reachabilityForInternetConnection] currentReachabilityStatus] != SFSDKReachabilityNotReachable)
+        [self.store clearSoup:self.dataSpec.soupName];
     
     // if (self.syncDownId == 0) {
         // first time
