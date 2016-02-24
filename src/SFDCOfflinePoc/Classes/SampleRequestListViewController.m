@@ -265,15 +265,15 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
             if ([syncProgressDetails isDone]) {
                 
                 [weakSelf.dataMgr refreshLocalData];
-                
+                // update attachments parentIds
                 for (AttachmentSObjectData* data in self.attachmentDataMgr.dataRows)
                     if ([self.attachmentDataMgr dataHasLocalChanges:data] && addedRequestsEntryIDs[data.parentId]) {
                         for (SampleRequestSObjectData* req in weakSelf.dataMgr.dataRows) {
                             if ([req.soupEntryId isEqual:addedRequestsEntryIDs[data.parentId]]) {
                                 data.parentId = req.objectId;
+                                [self.attachmentDataMgr updateLocalData:data];
                                 break;
-                            } else
-                                NSLog(@"%@ != %@", req.soupEntryId, addedRequestsEntryIDs[data.parentId]);
+                            }
                         }
                     }
                 
