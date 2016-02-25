@@ -96,8 +96,8 @@
 - (void)loadView {
     [super loadView];
 
-    self.contactObject = self.isNewSampleRequest ? [self.contactMgr.dataRows objectAtIndex:0] : [self.contactMgr findById:self.sampleRequest.contactId];
-    self.productObject = self.isNewSampleRequest ? [self.productMgr.dataRows objectAtIndex:0] : [self.productMgr findById:self.sampleRequest.productId];
+    self.contactObject = self.isNewSampleRequest ? [self.contactMgr.dataRows firstObject] : [self.contactMgr findById:self.sampleRequest.contactId];
+    self.productObject = self.isNewSampleRequest ? [self.productMgr.dataRows firstObject] : [self.productMgr findById:self.sampleRequest.productId];
 
     self.dataRows = [self dataRowsFromSampleRequest];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -341,7 +341,7 @@
 
     NSMutableArray *workingDataRows = [NSMutableArray array];
     [workingDataRows addObjectsFromArray:self.sampleRequestDataRows];
-    if (!self.isNewSampleRequest && _sampleRequest.objectId.length) {
+    if (!self.isNewSampleRequest) {
         [workingDataRows addObject:self.signDataRow];
     }
     return workingDataRows;
@@ -609,22 +609,25 @@
     
     AttachmentSObjectData* att = [[AttachmentSObjectData alloc] init];
     
+    self.sampleRequestUpdated = YES;
+    [self.dataMgr dataLocallyCreated:_sampleRequest] ? [self.dataMgr createLocalData:_sampleRequest] : [self.dataMgr updateLocalData:_sampleRequest];
+    
     NSString* parentID = _sampleRequest.objectId;
-    att.name = [Configurations pdfName];
+    NSDateFormatter* dateFormatter = [NSDateFormatter new];
+    dateFormatter.dateFormat = @"YYYY-MM-dd'T'HH:mm:ss";
+    att.name = [[[Configurations pdfName] stringByAppendingFormat:@"_%@", [dateFormatter stringFromDate:[NSDate date]]] stringByAppendingPathExtension:@"pdf"];
     att.body = b64;
     att.parentId = parentID;
-
-    self.sampleRequestUpdated = YES;
     
     [self.attachmentMgr createLocalData:att];
-    [self.dataMgr updateLocalData:_sampleRequest];
+    
     
     // check if connected
     if ([[SFSDKReachability reachabilityForInternetConnection] currentReachabilityStatus] == SFSDKReachabilityNotReachable) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
             [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please sync when Internet connection is available" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Info" message:@"Please sync when Internet connection is available" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
             [alert show];
             [self.navigationController popViewControllerAnimated:YES];
         });
@@ -638,38 +641,84 @@
         if ([self.attachmentMgr dataHasLocalChanges:data])
             ++count;
 
-    // try send
-    typeof(self) __weak weakSelf = self;
-    [self.attachmentMgr updateRemoteData:^(SFSyncState *sync) {
-        if ([sync isDone]) {
-            [weakSelf.attachmentMgr refreshLocalData];
-            [weakSelf.attachmentMgr refreshRemoteData];
-            [weakSelf.dataMgr refreshLocalData];
-            [weakSelf.dataMgr refreshRemoteData];
-            NSString* msg = [NSString stringWithFormat:@"Uploaded %d attachment(s)", (int)count];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
-                [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-                [weakSelf showAlert:msg title:@"Success"];
-                [self.navigationController popViewControllerAnimated:YES];
-            });
-        } else if ([sync hasFailed]) {
-            NSString* msg = @"Sync failed, try again later";
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
-                [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-                [weakSelf showAlert:msg title:@"Error"];
-            });
-        } else {
-            NSString* msg = [NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:sync.status]];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
-                [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-                [weakSelf showAlert:msg title:@"Error"];
-            });
+    // prepare IDs for mapping after requests synced
+    NSMutableDictionary* addedRequestsEntryIDs = [NSMutableDictionary new];
+    for (SampleRequestSObjectData* data in self.dataMgr.dataRows)
+        if ([self.dataMgr dataLocallyCreated:data]) {
+            addedRequestsEntryIDs[data.objectId] = data.soupEntryId;
         }
-
+    
+    // sync requests
+    typeof(self) __weak weakSelf = self;
+    [self.dataMgr updateRemoteData:^(SFSyncState *syncProgressDetails) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([syncProgressDetails isDone]) {
+                
+                [weakSelf.dataMgr refreshLocalData];
+                // updated IDs for created requests
+                for (AttachmentSObjectData* data in self.attachmentMgr.dataRows)
+                    if ([self.attachmentMgr dataHasLocalChanges:data] && addedRequestsEntryIDs[data.parentId]) {
+                        for (SampleRequestSObjectData* req in weakSelf.dataMgr.dataRows) {
+                            if ([req.soupEntryId isEqual:addedRequestsEntryIDs[data.parentId]]) {
+                                data.parentId = req.objectId;
+                                [self.attachmentMgr updateLocalData:data];
+                                break;
+                            }
+                        }
+                    }
+                
+                [weakSelf.dataMgr refreshRemoteData];
+                // upload attachments
+                [weakSelf.attachmentMgr updateRemoteData:^(SFSyncState *sync) {
+                    if ([sync isDone]) {
+                        [weakSelf.attachmentMgr refreshLocalData];
+                        [weakSelf.attachmentMgr refreshRemoteData];
+                        [weakSelf.dataMgr refreshLocalData];
+                        [weakSelf.dataMgr refreshRemoteData];
+                        NSString* msg = [NSString stringWithFormat:@"Uploaded %d attachment(s)", (int)count];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
+                            [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+                            [weakSelf showAlert:msg title:@"Success"];
+                            [self.navigationController popViewControllerAnimated:YES];
+                        });
+                    } else if ([sync hasFailed]) {
+                        NSString* msg = sync.syncError.code == 400 ? @"Signed sample request has been remotely deleted" : @"Sync failed, try again later";
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
+                            [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+                            [weakSelf showAlert:msg title:@"Error"];
+                        });
+                    } else {
+                        NSString* msg = [NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:sync.status]];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
+                            [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+                            [weakSelf showAlert:msg title:@"Error"];
+                        });
+                    }
+                    
+                }];
+                
+            } else if ([syncProgressDetails hasFailed]) {
+                NSString* msg = @"Sync failed, try again later";
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
+                    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+                    [weakSelf showAlert:msg title:@"Error"];
+                });
+            } else {
+                NSString* msg = [NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [MBProgressHUD hideHUDForView:self.navigationController.view animated:YES];
+                    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+                    [weakSelf showAlert:msg title:@"Error"];
+                });
+            }
+        });
     }];
+    
+
 }
 
 - (void)showAlert:(NSString*)msg title:(NSString*)title {

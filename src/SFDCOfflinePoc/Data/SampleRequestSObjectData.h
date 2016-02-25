@@ -21,5 +21,6 @@
 @property (nonatomic, copy) NSDictionary *authorizedUsers;
 @property (nonatomic, copy) NSArray *userRecords;
 @property (nonatomic, copy) NSArray *attachments;
+@property (nonatomic, readonly) NSNumber *soupEntryId;
 
 @end

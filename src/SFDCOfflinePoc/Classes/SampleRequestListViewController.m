@@ -20,6 +20,7 @@
 #import "ContactSObjectData.h"
 #import "ProductSObjectData.h"
 #import "WYPopoverController.h"
+#import "MBProgressHUD.h"
 #import <SalesforceSDKCore/SFDefaultUserManagementViewController.h>
 #import <SmartStore/SFSmartStoreInspectorViewController.h>
 #import <SalesforceSDKCore/SFAuthenticationManager.h>
@@ -108,14 +109,6 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
     self.navBarLabel.backgroundColor = [UIColor clearColor];
     self.navBarLabel.font = [UIFont systemFontOfSize:kNavBarTitleFontSize];
     self.navigationItem.titleView = self.navBarLabel;
-
-    // Navigation bar buttons
-    self.addButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add"] style:UIBarButtonItemStylePlain target:self action:@selector(addSampleRequest)];
-    self.syncButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"sync"] style:UIBarButtonItemStylePlain target:self action:@selector(syncUpDown)];
-    self.navigationItem.rightBarButtonItems = @[ self.syncButton, self.addButton ];
-    for (UIBarButtonItem *bbi in self.navigationItem.rightBarButtonItems) {
-        bbi.tintColor = [UIColor whiteColor];
-    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -193,6 +186,10 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
 
 #pragma mark - Private methods
 
+- (void)add {
+    [self addSampleRequest];
+}
+
 - (void)addSampleRequest {
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:kNavBarTitleText style:UIBarButtonItemStylePlain target:nil action:nil];
     SampleRequestDetailViewController *detailVc = [[SampleRequestDetailViewController alloc] initForNewSampleRequestWithDataManager:self.dataMgr saveBlock:^{
@@ -254,13 +251,31 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
         if ([self.attachmentDataMgr dataHasLocalChanges:data])
             ++count;
     
+    NSMutableDictionary* addedRequestsEntryIDs = [NSMutableDictionary new];
+    for (SampleRequestSObjectData* data in self.dataMgr.dataRows)
+        if ([self.dataMgr dataLocallyCreated:data]) {
+            addedRequestsEntryIDs[data.objectId] = data.soupEntryId;
+        }
+    
     // sync requests
+    [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
     typeof(self) __weak weakSelf = self;
     [self.dataMgr updateRemoteData:^(SFSyncState *syncProgressDetails) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([syncProgressDetails isDone]) {
                 
                 [weakSelf.dataMgr refreshLocalData];
+                // update attachments parentIds
+                for (AttachmentSObjectData* data in self.attachmentDataMgr.dataRows)
+                    if ([self.attachmentDataMgr dataHasLocalChanges:data] && addedRequestsEntryIDs[data.parentId]) {
+                        for (SampleRequestSObjectData* req in weakSelf.dataMgr.dataRows) {
+                            if ([req.soupEntryId isEqual:addedRequestsEntryIDs[data.parentId]]) {
+                                data.parentId = req.objectId;
+                                [self.attachmentDataMgr updateLocalData:data];
+                                break;
+                            }
+                        }
+                    }
                 
                 [weakSelf.dataMgr refreshRemoteData];
                 
@@ -277,10 +292,13 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
                                 UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Success" message:[NSString stringWithFormat:@"Uploaded %d attachment(s)", (int)count] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
                                 [alert show];
                             }
+                            [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         } else if ([syncProgressDetails hasFailed]) {
                             [weakSelf showToast:@"Sync failed."];
+                            [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         } else {
-                            [weakSelf showToast:[NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
+                            [weakSelf showToast:sync.syncError.code == 400 ? @"Deleted 1 attachment" : [NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
+                            [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
                         }
                     });
                 }];
@@ -288,9 +306,11 @@ static CGFloat    const kProductDetailFontSize          = 13.0;
             } else if ([syncProgressDetails hasFailed]) {
                 [weakSelf showToast:@"Sync failed."];
                 weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
+                [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
             } else {
                 [weakSelf showToast:[NSString stringWithFormat:@"Unexpected status: %@", [SFSyncState syncStatusToString:syncProgressDetails.status]]];
                 weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
+                [MBProgressHUD hideHUDForView:weakSelf.navigationController.view animated:YES];
             }
         });
     }];
