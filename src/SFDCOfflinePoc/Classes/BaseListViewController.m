@@ -367,7 +367,7 @@ static CGFloat    const kToastMessageFontSize           = 16.0;
     } else if ([text isEqualToString:kActionDbInspector]) {
         [[[SFSmartStoreInspectorViewController alloc] initWithStore:self.dataMgr.store] present:self];
     } else if ([text isEqualToString:kActionChangePin]) {
-        [(TabBarViewController*)self.tabBarController configurePin];
+        [(TabBarViewController*)self.tabBarController configurePin:NO];
     }
 }
 

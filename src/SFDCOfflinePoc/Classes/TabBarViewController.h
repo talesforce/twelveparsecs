@@ -12,7 +12,9 @@
 
 /**
  *  starts pin configuration
+ *
+ *  @param initial initial configuration
  */
-- (void)configurePin;
+- (void)configurePin:(BOOL)initial;
 
 @end

@@ -44,6 +44,13 @@ static NSString* reachHostName = @"login.salesforce.com";
 
     noConnection = NO;
 
+    // 1st time configuration
+    if (!self.pin) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self configurePin:YES];
+        });
+    }
+    
     // Allocate a reachability object
     reach = [Reachability reachabilityWithHostname:reachHostName];
 
@@ -140,13 +147,15 @@ static NSString* reachHostName = @"login.salesforce.com";
 /**
  *  starts pin configuration
  */
-- (void)configurePin {
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"No connection" message:@"Enter pin"
+- (void)configurePin:(BOOL)initial {
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Configure pin" message:@"Enter pin"
                                              preferredStyle:UIAlertControllerStyleAlert];
-    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = @"Old pin";
-        textField.secureTextEntry = YES;
-    }];
+    if (!initial) {
+        [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+            textField.placeholder = @"Old pin";
+            textField.secureTextEntry = YES;
+        }];
+    }
     [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = @"Enter pin";
         textField.secureTextEntry = YES;
@@ -156,16 +165,20 @@ static NSString* reachHostName = @"login.salesforce.com";
         textField.secureTextEntry = YES;
     }];
     UIAlertAction *action = [UIAlertAction actionWithTitle:@"Set" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        UITextField *oldPinTextField = alert.textFields[0];
-        UITextField *pinTextField = alert.textFields[1];
-        UITextField *confirmPinTextField = alert.textFields[2];
-        if ((self.pin && ![oldPinTextField.text isEqual:self.pin]) || (!self.pin && oldPinTextField.text.length)) {
+        UITextField *oldPinTextField = [alert.textFields firstObject];
+        UITextField *pinTextField = alert.textFields[alert.textFields.count-2];
+        UITextField *confirmPinTextField = [alert.textFields lastObject];
+        if (!initial && ![oldPinTextField.text isEqual:self.pin]) {
             [self showAlert:@"Error" message:@"Wrong pin" completion:^{
-                [self configurePin];
+                [self configurePin:initial];
+            }];
+        } else if (!pinTextField.text.length) {
+            [self showAlert:@"Error" message:@"Pin cannot be empty" completion:^{
+                [self configurePin:initial];
             }];
         } else if (![pinTextField.text isEqual:confirmPinTextField.text]) {
             [self showAlert:@"Error" message:@"Pins do not match" completion:^{
-                [self configurePin];
+                [self configurePin:initial];
             }];
         } else
         { // all good
